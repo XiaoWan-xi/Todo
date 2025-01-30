@@ -67,6 +67,10 @@ function renderTask(task) {
     const li = document.createElement('li');
     li.textContent = `${task.text} (Deadline: ${task.deadline})`;
 
+    if (task.completed) {
+        li.style.textDecoration = 'line-through';
+    }
+
     const completeButton = document.createElement('button');
     completeButton.textContent = 'Complete';
     completeButton.classList.add('complete');
@@ -159,6 +163,7 @@ setInterval(checkOverdueTasks, 60000); // Check every minute
 function updateCounter() {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     const completedTasks = tasks.filter(task => task.completed && isToday(new Date(task.completedDate))).length;
+    localStorage.setItem('completedTasksToday', completedTasks); // Store counter in localStorage
     document.getElementById('taskCounter').textContent = `Tasks completed today: ${completedTasks}`;
 }
 
