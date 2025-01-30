@@ -110,6 +110,21 @@ function checkOverdueTasks() {
                 task.style.color = 'red';
                 if (!task.textContent.includes('(Overdue)')) {
                     task.textContent += ' (Overdue)';
+
+                    // Add delete button for overdue tasks if not already present
+                    if (!task.querySelector('button.delete-overdue')) {
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.classList.add('delete-overdue');
+                        deleteButton.onclick = function () {
+                            task.remove();
+                            deleteTask({
+                                text: taskText.split(' (Deadline: ')[0],
+                                deadline: deadlineMatch[1]
+                            });
+                        };
+                        task.appendChild(deleteButton);
+                    }
                 }
             }
         }
