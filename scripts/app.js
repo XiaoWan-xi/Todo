@@ -1,4 +1,21 @@
-document.addEventListener('DOMContentLoaded', loadTasks);
+document.addEventListener('DOMContentLoaded', () => {
+    loadTasks();
+    updateCounter();
+    resetCounterAtMidnight();
+
+    // Add event listener for Enter key press
+    document.getElementById('taskInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            addTask();
+        }
+    });
+
+    document.getElementById('deadlineInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            addTask();
+        }
+    });
+});
 
 function addTask() {
     const input = document.getElementById('taskInput');
@@ -19,7 +36,8 @@ function addTask() {
     const task = {
         text: taskText,
         deadline: deadlineText,
-        completed: false
+        completed: false,
+        completedDate: null // Initialize completedDate
     };
 
     saveTask(task);
@@ -30,6 +48,7 @@ function addTask() {
 
     // Check if the task is overdue
     checkOverdueTasks();
+    updateCounter();
 }
 
 function saveTask(task) {
@@ -54,7 +73,9 @@ function renderTask(task) {
     completeButton.onclick = function () {
         li.style.textDecoration = 'line-through';
         task.completed = true;
+        task.completedDate = new Date().toISOString(); // Add completion date
         updateTasks();
+        updateCounter();
     };
 
     const deleteButton = document.createElement('button');
@@ -90,7 +111,8 @@ function updateTasks() {
         const task = {
             text: taskText.split(' (Deadline: ')[0],
             deadline: deadlineMatch ? deadlineMatch[1] : '',
-            completed: li.style.textDecoration === 'line-through'
+            completed: li.style.textDecoration === 'line-through',
+            completedDate: li.style.textDecoration === 'line-through' ? new Date().toISOString() : null // Update completedDate
         };
         tasks.push(task);
     });
@@ -133,3 +155,26 @@ function checkOverdueTasks() {
 
 // Call checkOverdueTasks periodically to update the status
 setInterval(checkOverdueTasks, 60000); // Check every minute
+
+function updateCounter() {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    const completedTasks = tasks.filter(task => task.completed && isToday(new Date(task.completedDate))).length;
+    document.getElementById('taskCounter').textContent = `Tasks completed today: ${completedTasks}`;
+}
+
+function isToday(date) {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+}
+
+function resetCounterAtMidnight() {
+    const now = new Date();
+    const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+    setTimeout(() => {
+        localStorage.setItem('completedTasksToday', '0');
+        updateCounter();
+        resetCounterAtMidnight();
+    }, msUntilMidnight);
+}

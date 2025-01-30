@@ -88,3 +88,9 @@ li.completed {
     text-decoration: line-through;
     color: #999;
 }
+
+.counter {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #28a745;
+}
