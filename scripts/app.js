@@ -50,6 +50,7 @@ function renderTask(task) {
 
     const completeButton = document.createElement('button');
     completeButton.textContent = 'Complete';
+    completeButton.classList.add('complete');
     completeButton.onclick = function () {
         li.style.textDecoration = 'line-through';
         task.completed = true;
